@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Patient Billing</title>
+<style>
+:root{--text:#111;--muted:#666;--line:#c8c8c8;--accent:#1a56c8;--req:#f6f6a6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;border-radius:0!important}
+html,body{background:#fff}
+body{margin:0;color:var(--text);font:12px/1.4 Verdana,Geneva,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:0 8px 16px}
+.nav{background:linear-gradient(#35457d,#222d58);display:flex;align-items:center;flex-wrap:wrap}
+.brand{color:#fff;font-weight:bold;padding:9px 14px}
+.tabs{display:flex;flex-wrap:wrap}
+.tabs button{background:none;border:0;border-left:1px solid #121a3a;color:#fff;padding:10px 16px;font:bold 11px Verdana,Geneva,sans-serif;cursor:pointer}
+.tabs button.on{background:#4a5b9c}
+#cloud{margin-left:auto;color:#cdd5f0;padding:0 12px;font-size:10px}
+h1{font-size:17px;color:var(--accent);margin:10px 0 6px}
+.card{border:1px solid var(--line);padding:10px;margin-bottom:10px;background:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+label{display:block;margin-bottom:2px}
+input,select,textarea{width:100%;font:12px Verdana,Geneva,sans-serif;height:24px;padding:2px 4px;border:1px solid #b9b9b9;background:#fff;color:#000}
+textarea{height:auto}
+input[type=radio],input[type=checkbox]{width:auto;height:auto}
+.req{background:var(--req)}
+button{font:bold 11px Verdana,Geneva,sans-serif;background:linear-gradient(#f6f8fd,#e3e9f5);border:1px solid #c5cee4;color:#2147b8;padding:6px 14px;cursor:pointer}
+button.p{border-color:#8fa3d6}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-top:10px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:5px 7px;border:1px solid #d6d6d6;text-align:left;vertical-align:top}
+th{background:#e9edf6;font-size:11px}
+td.n,th.n{text-align:right}
+.x{color:#d92d20;border:0;background:none;padding:0 4px;font-size:13px}
+.fg{display:grid;grid-template-columns:120px 1fr 100px 1fr 130px 1fr;gap:7px 10px;align-items:center}
+.fg>label{margin:0}
+.f{display:flex;gap:4px;align-items:center}
+.rd{display:inline-flex;gap:3px;align-items:center;margin:0 10px 0 0}
+.box{border:1px solid var(--line);padding:10px;margin-top:12px}
+.sb{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+.sb .bt{display:flex;flex-direction:column;gap:8px;justify-content:center}
+.sb .bt button{width:110px}
+.lst{border:1px solid #b9b9b9;height:200px;overflow:auto}
+.lk{border:0;background:none;color:var(--accent);text-decoration:underline;padding:0 6px}
+.lk.on{font-weight:bold}
+#tl{height:200px}
+.pay{display:grid;grid-template-columns:200px 1fr;border:1px solid var(--line);margin-top:12px}
+.pay>div{padding:10px}
+.pay>div:first-child{border-right:1px solid var(--line)}
+.pr{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+@media(max-width:900px){.fg{grid-template-columns:110px 1fr}.pay{grid-template-columns:1fr}.pay>div:first-child{border-right:0;border-bottom:1px solid var(--line)}}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.ov .bx{background:#fff;border:1px solid #888;padding:18px;max-width:380px;width:100%}
+#printArea{display:none}
+@media print{
+ @page{size:A4;margin:12mm}
+ body{background:#fff;color:#000}
+ .wrap,.ov{display:none}
+ #printArea{display:block;color:#000;font-size:12px}
+ #printArea h2{margin:0 0 2px;font-size:18px}
+ #printArea table{border:1px solid #000}
+ #printArea tr{break-inside:avoid}
+ #printArea h3{break-after:avoid}
+ #printArea th,#printArea td{border:1px solid #444;color:#000;padding:5px 6px;white-space:normal;background:#fff}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="nav"><span class="brand">Patient Billing</span><div class="tabs"><button data-t="reg">Test Registration</button><button data-t="list">Patient List</button><button data-t="doc">Doctors</button><button data-t="tst">Test Master</button><button data-t="com">Commission</button></div><small id="cloud"></small></div>
+ <h1 id="ttl">Test Registration</h1>
+
+ <div class="card" data-tab="doc">
+  <strong>Doctors</strong> <span style="color:var(--muted)">(short code + full name)</span>
+  <div class="row"><div><label>Short code</label><input id="dCode" placeholder="AAS" style="width:110px"></div><div style="flex:1;min-width:180px"><label>Full name</label><input id="dName" placeholder="Dr. Full Name"></div><div><label>Commission %</label><input id="dPct" type="number" min="0" max="100" step="0.5" style="width:100px"></div><button id="dAdd">Add / update doctor</button></div>
+  <div class="row" style="margin-top:14px"><div style="min-width:220px"><label>Select doctor</label><select id="dSel"></select></div><div><label>Commission rate (%)</label><input id="dRate" type="number" min="0" max="100" step="0.5" style="width:120px"></div><button class="p" id="dSet">Save commission</button><span id="dMsg" style="color:var(--muted)"></span></div>
+  <p id="dList" style="color:var(--muted);margin:8px 0 0"></p>
+ </div>
+
+ <div class="card" data-tab="reg">
+  <div class="fg">
+   <label><b>Patient Name</b> <span style="color:#c00">*</span></label>
+   <div class="f"><select id="title" class="req" style="width:84px"><option value="">-</option><option>Mr</option><option>Mrs</option><option>Miss</option><option>Master</option><option>Baby of</option></select><input id="name" class="req" placeholder="Patient Name"></div>
+   <label><b>Lab Code</b></label><div class="f"><input id="lab" readonly></div>
+   <label>Registration Date</label><div class="f"><input id="date" class="dt" placeholder="DD/MM/YYYY" maxlength="10" inputmode="numeric"></div>
+   <label><b>Gender</b></label>
+   <div class="f"><label class="rd"><input type="radio" name="g" value="Male">Male</label><label class="rd"><input type="radio" name="g" value="Female">Female</label><select id="gender" style="display:none"><option value="">Select</option><option>Male</option><option>Female</option></select></div>
+   <label><b>Age</b> <span style="color:#c00">*</span></label>
+   <div class="f"><input id="age" class="req" type="number" min="0" style="width:70px"><select id="ageu" style="width:70px"><option>Yr</option><option>Mth</option><option>Day</option></select></div>
+   <label>Mobile Number</label><div class="f"><input id="phone" type="tel"></div>
+   <label><b>Doctor Name</b> <span style="color:#c00">*</span></label>
+   <div class="f"><select id="doc" class="req"></select><button type="button" id="docPlus" title="Add doctor" style="padding:2px 8px">+</button></div>
+  </div>
+  <input id="tests" type="hidden">
+  <div class="box" id="tsel">
+   <div class="f" style="flex-wrap:wrap;gap:10px;align-items:flex-start">
+    <span style="padding-top:4px">Search By</span><select id="tby" style="width:110px"><option value="s">Short Name</option><option value="n">Test Name</option></select>
+    <input id="tq" placeholder="Select Test" style="width:170px"><select id="tcat" style="width:170px"></select><select id="tprof" style="width:170px"></select>
+    <textarea id="tcomment" rows="2" placeholder="Enter Comment" style="flex:1;min-width:200px"></textarea>
+   </div>
+   <div class="sb">
+    <div style="flex:1;min-width:260px"><div style="margin-bottom:4px"><b>Test List</b> <button type="button" class="lk" data-m="fav">Favourite Tests</button><button type="button" class="lk on" data-m="all">Test List</button></div><select id="tl" multiple></select></div>
+    <div class="bt"><button type="button" id="tadd">Add &gt;&gt;</button><button type="button" id="taddAll">Add All &gt;&gt;</button><button type="button" id="trem">&lt;&lt; Remove</button><button type="button" id="tremAll">&lt;&lt; Remove All</button></div>
+    <div style="flex:1.3;min-width:260px"><div style="margin-bottom:4px"><b>Selected Test List</b></div><div class="lst"><table><tbody id="stab"></tbody></table></div></div>
+   </div>
+  </div>
+  <div class="pay">
+   <div><b>Discount (Regn)</b><div class="f" style="margin-top:6px"><input id="disc" type="number" min="0" style="width:90px"><span>Amt</span></div></div>
+   <div>
+    <div class="pr"><b>Payment Method:</b><label class="rd"><input type="radio" name="pm" value="Cash" checked>Cash</label><label class="rd"><input type="radio" name="pm" value="UPI">UPI</label><label class="rd"><input type="radio" name="pm" value="Credit">Credit</label><label class="rd"><input type="radio" name="pm" value="Insurance">Insurance</label><label class="rd"><input type="radio" name="pm" value="Balance">Balance</label></div>
+    <div class="pr" style="margin-top:10px"><span>Total</span><input id="total" type="number" min="0" style="width:90px"><span>Net Amount</span><b id="net">0</b><span>Paid</span><input id="paid" type="number" min="0" style="width:90px"><span>Balance</span><b id="bal">0</b></div>
+    <div class="pr" style="margin-top:12px;justify-content:center"><button type="button" id="tsrch">&lt;&lt; Test Search</button><button type="button" class="p" id="add">Save</button><button type="button" id="proceed">Proceed &gt;&gt;</button><button type="button" id="cedit" style="display:none">Cancel edit</button></div>
+   </div>
+  </div>
+  <p id="msg" style="margin:8px 0 0;color:#555"></p>
+ </div>
+
+ <div class="card" data-tab="list">
+  <div class="grid">
+   <div><label>RF Doctor</label><select id="fDoc"></select></div>
+   <div><label>Status</label><select id="fSt"><option value="">All</option><option>Paid</option><option>Balance/Due</option><option>Insurance</option><option>Cancelled</option></select></div>
+   <div><label>From date</label><input id="from" class="dt" placeholder="DD/MM/YYYY" maxlength="10" inputmode="numeric"></div>
+   <div><label>To date</label><input id="to" class="dt" placeholder="DD/MM/YYYY" maxlength="10" inputmode="numeric"></div>
+   <div><label>Search name</label><input id="q"></div>
+  </div>
+  <div class="row"><button id="clear">Clear filters</button><button class="p" id="print">Print A4</button></div>
+  <p id="sum" style="color:var(--muted)"></p>
+  <div class="scroll"><table><thead><tr><th>Date</th><th>Lab Code</th><th>Pt Name</th><th>Test</th><th>RF Doctor</th><th class="n">Amount</th><th>Status</th><th>Method</th><th></th></tr></thead><tbody id="list"></tbody></table></div>
+  <div class="row" style="margin-top:14px;border-top:1px solid var(--line);padding-top:10px"><b>Backup</b><button id="bkDl">Download backup</button><div><label>Restore from backup file</label><input type="file" id="bkFile" accept=".json,application/json" style="height:auto"></div><span id="bkMsg" style="color:var(--muted)"></span></div>
+ </div>
+<div class="card" data-tab="tst">
+  <b>Test master</b>
+  <p style="color:var(--muted);margin:4px 0 8px">Your rate-list tests are already here, without prices. Add or remove tests as needed. You type the amount on each bill in Test Registration.</p>
+  <div class="grid"><div><label>Short name (optional)</label><input id="mCode"></div><div style="grid-column:span 2"><label>Test name</label><input id="mName"></div><div><label>Category</label><input id="mCat"></div><div><label>Favourite</label><select id="mFav"><option value="">No</option><option value="1">Yes</option></select></div></div>
+  <div class="row"><button class="p" id="tAdd">Add / update test</button><span id="tMsg" style="color:var(--muted)"></span></div>
+  <details style="margin-top:10px"><summary>Add many tests at once</summary>
+   <p style="color:var(--muted);margin:6px 0">One test name per line.</p>
+   <textarea id="mBulk" rows="6"></textarea>
+   <div class="row"><button id="tBulk">Add these tests</button></div>
+  </details>
+  <div class="row"><div style="min-width:220px"><label>Search tests</label><input id="mq"></div></div>
+  <div class="scroll" style="margin-top:8px;max-height:360px;overflow:auto"><table><thead><tr><th>Short</th><th>Test name</th><th>Category</th><th>Fav</th><th></th></tr></thead><tbody id="tmlist"></tbody></table></div>
+  <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+  <b>Test profiles</b> <span style="color:var(--muted)">(a group of tests added together)</span>
+  <div class="grid" style="margin-top:8px"><div><label>Profile name</label><input id="pName"></div><div style="grid-column:span 2"><label>Tests in profile (hold Ctrl to select several)</label><select id="pSel" multiple size="8" style="height:150px"></select></div></div>
+  <div class="row"><button class="p" id="pAdd">Save profile</button><span id="pMsg" style="color:var(--muted)"></span></div>
+  <div id="pmlist" style="margin-top:8px"></div>
+ </div>
+
+ <div class="card" data-tab="com">
+  <strong>Doctor commission (month-end)</strong>
+  <div class="grid" style="margin-top:8px">
+   <div><label>Referring doctor</label><select id="cd"></select></div>
+   <div><label>Month (MM/YYYY)</label><input id="cm" class="dt" placeholder="MM/YYYY" maxlength="7" inputmode="numeric"></div>
+   <div><label>Commission on</label><select id="cb"><option value="bill">Billed amount</option><option value="rec">Received amount only</option></select></div>
+  </div>
+  <p style="color:var(--muted);margin:8px 0">Type each doctor's commission % in the table. It is saved automatically. "Self" patients are not counted.</p>
+  <div class="scroll"><table><thead><tr><th>Doctor</th><th class="n">Patients</th><th class="n">Amount</th><th class="n">Commission %</th><th class="n">Commission &#8377;</th><th></th></tr></thead><tbody id="clist"></tbody><tfoot><tr><td colspan="4" class="n"><b>Total commission payable</b></td><td class="n"><b id="cgt">0</b></td><td></td></tr></tfoot></table></div>
+  <div class="row"><button class="p" id="cprintAll">Print summary A4</button></div>
+ </div>
+</div>
+
+<div id="ov" class="ov" style="display:none"><div class="bx"><p id="ovMsg" style="margin:0 0 14px"></p><div class="row" style="margin:0;justify-content:flex-end"><button id="ovNo">No, go back</button><button class="p" id="ovYes">Yes</button></div></div></div>
+<div id="printArea"></div>
+
+<script>
+var KEY="patientBillingData",DK="patientBillingDocs",data=[],docs=[];
+try{data=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){data=[]}
+try{docs=JSON.parse(localStorage.getItem(DK)||"[]")}catch(e){docs=[]}
+function $(i){return document.getElementById(i)}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(DK,JSON.stringify(docs))}catch(e){}}
+function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function pd(s){var x=String(s||"").replace(/\D/g,"");if(x.length!==8)return"";var d=+x.slice(0,2),m=+x.slice(2,4),y=+x.slice(4);if(m<1||m>12||d<1||d>31||y<2000)return"";return x.slice(4)+"-"+x.slice(2,4)+"-"+x.slice(0,2)}
+function fmt(v){var x=v.replace(/\D/g,"").slice(0,8);return x.length>4?x.slice(0,2)+"/"+x.slice(2,4)+"/"+x.slice(4):x.length>2?x.slice(0,2)+"/"+x.slice(2):x}
+function dmy(s){var a=s.split("-");return a[2]+"/"+a[1]+"/"+a[0]}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function num(v){return parseFloat(v)||0}
+function dname(c){var d=docs.filter(function(x){return x.code===c})[0];return d?d.name:c}
+function addDoc(c,n){c=c.trim();if(!c)return;var d=docs.filter(function(x){return x.code===c})[0];if(d){if(n)d.name=n}else docs.push({code:c,name:n||c})}
+function normalize(){addDoc("Self","Self (Walk-in)");
+data.sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:a.reg-b.reg});
+data.forEach(function(p){
+ if(!p.status){p.status=p.paid>=p.total?"Paid":"Balance/Due";p.method=p.method||"Cash"}
+ if(!p.doc)p.doc="Self";addDoc(p.doc,"");
+});}
+normalize();
+function refresh(){
+ var o=docs.map(function(d){return'<option value="'+esc(d.code)+'">'+esc(d.code)+' - '+esc(d.name)+'</option>'}).join("");
+ var c1=$("doc").value,c2=$("fDoc").value;
+ $("doc").innerHTML=o;$("fDoc").innerHTML='<option value="">All doctors</option>'+o;
+ if(c1)$("doc").value=c1;if(c2)$("fDoc").value=c2;
+ var c3=$("cd").value;$("cd").innerHTML='<option value="">All doctors</option>'+docs.filter(function(x){return x.code!=="Self"}).map(function(d){return'<option value="'+esc(d.code)+'">'+esc(d.code)+' - '+esc(d.name)+'</option>'}).join("");if(c3)$("cd").value=c3;
+ var c4=$("dSel").value;$("dSel").innerHTML='<option value="">Select doctor</option>'+docs.filter(function(x){return x.code!=="Self"}).map(function(d){return'<option value="'+esc(d.code)+'">'+esc(d.code)+' - '+esc(d.name)+(d.pct?' ('+d.pct+'%)':'')+'</option>'}).join("");if(c4)$("dSel").value=c4;
+ $("dList").textContent=docs.map(function(d){return d.code+" = "+d.name+(d.pct?" ("+d.pct+"%)":"")}).join(" | ");
+}
+function filtered(){
+ var f=$("fDoc").value,st=$("fSt").value,a=pd($("from").value),b=pd($("to").value),q=$("q").value.toLowerCase();
+ return data.filter(function(p){return(!f||p.doc===f)&&(!st||stOf(p)===st)&&(!a||p.date>=a)&&(!b||p.date<=b)&&(!q||p.name.toLowerCase().indexOf(q)>-1)});
+}
+function stOf(p){return p.cancelled?"Cancelled":p.status}
+function fn(p){return(p.title?p.title+" ":"")+p.name}
+function totals(L){var t=0,r=0,d=0,i=0;L.forEach(function(p){if(p.cancelled)return;t+=p.total;if(p.status==="Paid")r+=p.total;else if(p.status==="Insurance")i+=p.total;else{r+=p.paid;d+=p.total-p.paid}});return{t:t,r:r,d:d,i:i}}
+function render(){
+ refresh();var L=filtered(),T=totals(L);
+ $("list").innerHTML=L.map(function(p){
+  var st=p.cancelled?"Cancelled":p.status==="Balance/Due"?"Due ₹"+(p.total-p.paid):p.status;
+  return'<tr'+(p.cancelled?' style="opacity:.55;text-decoration:line-through"':'')+'><td>'+dmy(p.date)+'</td><td>'+labOf(p)+'</td><td>'+esc(fn(p))+'</td><td>'+esc(p.tests)+'</td><td title="'+esc(dname(p.doc))+'">'+esc(dname(p.doc))+'</td><td class="n">'+p.total+'</td><td>'+esc(st)+'</td><td>'+esc(p.method)+'</td><td style="white-space:nowrap"><button data-ed="'+p.id+'">Edit</button> <button data-cx="'+p.id+'">'+(p.cancelled?"Restore":"Cancel")+'</button> <button class="x" data-id="'+p.id+'" title="Delete">✕</button></td></tr>';
+ }).join("")||'<tr><td colspan="9" style="color:var(--muted)">No patients found.</td></tr>';
+ $("sum").textContent=L.filter(function(p){return!p.cancelled}).length+" patient(s) · Total ₹"+T.t+" · Received ₹"+T.r+" · Due ₹"+T.d+" · Insurance ₹"+T.i;
+crender();
+}
+$("date").value=dmy(today());$("cm").value=dmy(today()).slice(3);
+$("dAdd").onclick=function(){addDoc($("dCode").value,$("dName").value.trim());var dd=docs.filter(function(x){return x.code===$("dCode").value.trim()})[0];if(dd&&$("dPct").value!=="")dd.pct=num($("dPct").value);$("dCode").value=$("dName").value=$("dPct").value="";save();cdocs();render()};
+function ask(msg,yes,fn){$("ovMsg").textContent=msg;$("ovYes").textContent=yes;$("ov").style.display="flex";
+ $("ovNo").onclick=function(){$("ov").style.display="none"};$("ovYes").onclick=function(){$("ov").style.display="none";fn()}}
+var TG={"Mr":"Male","Master":"Male","Mrs":"Female","Miss":"Female"},editId=null;
+function gSync(){var v=$("gender").value,d=$("gender").disabled;[].forEach.call(document.querySelectorAll("input[name=g]"),function(r){r.checked=r.value===v;r.disabled=d})}
+function tSync(){var t=$("title").value;if(TG[t]){$("gender").value=TG[t];$("gender").disabled=true}else{if($("gender").disabled)$("gender").value="";$("gender").disabled=false}gSync()}
+[].forEach.call(document.querySelectorAll("input[name=g]"),function(r){r.onchange=function(){if(!$("gender").disabled)$("gender").value=r.value}});
+$("title").onchange=function(){tSync();if($("title").value==="Baby of")$("ageu").value="Mth"};tSync();
+function find(id){return data.filter(function(p){return String(p.id)===id})[0]}
+function nextReg(d){var m=0;data.forEach(function(p){if(p.date===d&&p.reg>m)m=p.reg});return m+1}
+function lc(d,r){return d.slice(8,10)+d.slice(5,7)+d.slice(2,4)+String(r).padStart(3,"0")}
+function labOf(p){return lc(p.date,p.reg)}
+function updLab(){var d=pd($("date").value);if(!d){$("lab").value="";return}var r=nextReg(d);if(editId){var p=find(editId);if(p&&p.date===d)r=p.reg}$("lab").value=lc(d,r)}
+$("date").addEventListener("input",updLab);
+function pmv(){var r=document.querySelector("input[name=pm]:checked");return r?r.value:""}
+function calc(){var t=num($("total").value),d=Math.min(num($("disc").value),t),net=t-d,pm=pmv(),bl=pm==="Balance";
+ $("paid").disabled=!bl;if(!bl)$("paid").value=pm==="Insurance"?"":(net||"");
+ var pa=bl?Math.min(num($("paid").value),net):(pm==="Insurance"?0:net);
+ $("net").textContent=r2(net);$("bal").textContent=bl?r2(net-pa):0}
+["total","disc","paid"].forEach(function(i){$(i).oninput=calc});
+[].forEach.call(document.querySelectorAll("input[name=pm]"),function(r){r.onchange=function(){if(pmv()==="Balance")$("paid").value="";calc()}});
+function resetForm(){editId=null;["name","age","phone","total","paid","disc"].forEach(function(i){$(i).value=""});$("ageu").value="Yr";sel=[];selRender();$("tcomment").value="";$("add").textContent="Save";$("cedit").style.display="none";calc();updLab()}
+$("cedit").onclick=function(){resetForm();$("msg").textContent=""};
+function startEdit(p){editId=String(p.id);$("title").value=p.title||"";tSync();if(!$("gender").disabled){$("gender").value=p.gender||"";gSync()}
+ $("name").value=p.name;$("age").value=p.age||"";$("ageu").value=p.ageu||"Yr";$("phone").value=p.phone||"";$("doc").value=p.doc;
+ sel=(p.items||[]).map(function(i){return{c:i.c,n:i.n}});selRender();$("tests").value=p.tests||"";$("tcomment").value=p.comment||"";
+ $("total").value=p.gross!=null?p.gross:p.total;$("disc").value=p.disc||"";$("paid").value=p.status==="Insurance"?"":p.paid;
+ var r=document.querySelector("input[name=pm][value='"+(p.status==="Balance/Due"?"Balance":p.method)+"']");if(r)r.checked=true;
+ $("date").value=dmy(p.date);$("add").textContent="Update";$("cedit").style.display="";$("msg").style.color="#555";$("msg").textContent="Editing Lab Code "+labOf(p);calc();updLab();showTab("reg");window.scrollTo(0,0)}
+function doSave(go){
+ var m=$("msg"),name=$("name").value.trim();m.style.color="#c00";
+ if(!editId&&!$("title").value){m.textContent="Select title (Mr, Mrs, Miss, Master, Baby of).";return}
+ if(!name){m.textContent="Enter patient name.";return}
+ var g=$("gender").value;if(!g){m.textContent="Select gender.";return}
+ var d=pd($("date").value);if(!d){m.textContent="Enter date as DD/MM/YYYY.";return}
+ var pm=pmv();if(!pm){m.textContent="Select payment method.";return}
+ var t=num($("total").value),dc=Math.min(num($("disc").value),t),net=t-dc,paid=pm==="Balance"?Math.min(num($("paid").value),net):(pm==="Insurance"?0:net);
+ var st=pm==="Insurance"?"Insurance":(paid>=net?"Paid":"Balance/Due");
+ var f={title:$("title").value,name:name,age:$("age").value,ageu:$("ageu").value,gender:g,phone:$("phone").value,doc:$("doc").value||"Self",tests:$("tests").value,items:sel.map(function(i){return{c:i.c,n:i.n}}),comment:$("tcomment").value,gross:t,disc:dc,total:net,paid:paid,status:st,method:pm};
+ m.style.color="#080";
+ if(editId){var p=find(editId);if(p){for(var k in f)p[k]=f[k];if(p.date!==d){p.date=d;p.reg=nextReg(d)}save();cput(p)}resetForm();m.textContent="Updated.";render();if(go)showTab("list");return}
+ var n=nextReg(d),np={id:String(Date.now())+Math.floor(Math.random()*1000),reg:n,date:d};for(var k2 in f)np[k2]=f[k2];
+ data.push(np);save();cput(np);resetForm();m.textContent="Saved. Lab Code "+lc(d,n);render();if(go)showTab("list");
+}
+$("add").onclick=function(){doSave(false)};$("proceed").onclick=function(){doSave(true)};
+$("tsrch").onclick=function(){$("tq").focus();$("tsel").scrollIntoView({block:"nearest"})};
+$("docPlus").onclick=function(){showTab("doc");$("dCode").focus()};
+$("list").onclick=function(e){var t=e.target,g=function(a){return t.getAttribute&&t.getAttribute(a)},p;
+ if(g("data-ed")){p=find(g("data-ed"));if(p)startEdit(p);return}
+ if(g("data-cx")){p=find(g("data-cx"));if(!p)return;
+  if(p.cancelled){p.cancelled=false;save();cput(p);render();return}
+  var q=p;ask("Cancel this bill for "+fn(q)+"? It stays in the list as Cancelled and is not counted in totals or commission.","Yes, cancel bill",function(){q.cancelled=true;save();cput(q);render()});return}
+ var id=g("data-id");
+ if(id)ask("Delete this patient permanently? This cannot be undone.","Yes, delete",function(){data=data.filter(function(x){return String(x.id)!==id});save();cdel(id);render()})};
+["fDoc","fSt","from","to","q"].forEach(function(i){$(i).oninput=render});
+$("clear").onclick=function(){["fDoc","fSt","from","to","q"].forEach(function(i){$(i).value=""});render()};
+$("print").onclick=function(){
+ var L=filtered(),T=totals(L),f=$("fDoc").value;
+ var rows=L.map(function(p){var st=p.status==="Balance/Due"?"Due "+(p.total-p.paid):stOf(p);
+  return'<tr><td>'+dmy(p.date)+'</td><td>'+esc(fn(p))+'</td><td>'+esc(p.tests)+'</td><td>'+esc(dname(p.doc))+'</td><td style="text-align:right">'+p.total+'</td><td>'+esc(st)+'</td><td>'+esc(p.method)+'</td></tr>'}).join("");
+ var fa=pd($("from").value),fb=pd($("to").value),r=(fa||fb)?" | "+(fa?dmy(fa):"start")+" to "+(fb?dmy(fb):"today"):"";
+ $("printArea").innerHTML='<h2>Patient List</h2><div style="margin-bottom:8px">Referred by: <b>'+esc(f?dname(f):"All doctors")+'</b>'+r+' | Printed: '+dmy(today())+'</div><table><thead><tr><th>Date</th><th>Pt Name</th><th>Test</th><th>RF Doctor</th><th>Amount</th><th>Status</th><th>Method</th></tr></thead><tbody>'+rows+'</tbody></table><p><b>Total: '+T.t+' | Received: '+T.r+' | Due: '+T.d+' | Insurance: '+T.i+'</b></p>';
+ window.print();
+};
+["date","from","to"].forEach(function(i){$(i).addEventListener("input",function(){this.value=fmt(this.value)})});
+$("cm").addEventListener("input",function(){var x=this.value.replace(/\D/g,"").slice(0,6);this.value=x.length>2?x.slice(0,2)+"/"+x.slice(2):x;crender()});
+$("cb").onchange=crender;
+$("dSel").onchange=function(){var d=docs.filter(function(x){return x.code===$("dSel").value})[0];$("dRate").value=d&&d.pct?d.pct:"";$("dMsg").textContent=""};
+$("dSet").onclick=function(){var d=docs.filter(function(x){return x.code===$("dSel").value})[0];if(!d){$("dMsg").textContent="Select a doctor first.";return}
+ d.pct=num($("dRate").value);save();cdocs();render();$("dMsg").textContent="Saved "+d.pct+"% for "+d.name};
+function addCal(id,type){var el=$(id),w=document.createElement("div");w.style.cssText="display:flex;gap:4px;position:relative";el.parentNode.insertBefore(w,el);w.appendChild(el);el.style.flex="1";el.style.minWidth="0";
+ var h=document.createElement("input");h.type=type;h.tabIndex=-1;h.style.cssText="position:absolute;right:0;bottom:0;width:40px;height:100%;opacity:0;pointer-events:none";
+ var b=document.createElement("button");b.type="button";b.textContent="\uD83D\uDCC5";b.title="Pick from calendar";b.style.padding="4px 8px";
+ b.onclick=function(){try{h.showPicker()}catch(e){h.focus();h.click()}};
+ h.onchange=function(){var v=h.value;if(!v)return;el.value=type==="month"?v.slice(5)+"/"+v.slice(0,4):dmy(v);el.dispatchEvent(new Event("input",{bubbles:true}))};
+ w.appendChild(b);w.appendChild(h)}
+addCal("date","date");addCal("from","date");addCal("to","date");addCal("cm","month");$("cd").onchange=crender;
+function showTab(t){var TT={reg:"Test Registration",list:"Patient List",doc:"Doctors",tst:"Test Master",com:"Doctor Commission"};$("ttl").textContent=TT[t]||"";[].forEach.call(document.querySelectorAll("[data-tab]"),function(e){var on=e.getAttribute("data-tab")===t;e.style.display=on?"":"none"});[].forEach.call(document.querySelectorAll(".tabs button"),function(b){b.classList.toggle("on",b.getAttribute("data-t")===t)})}
+document.querySelector(".tabs").onclick=function(e){var t=e.target.getAttribute("data-t");if(t)showTab(t)};
+showTab("reg");
+function pm(s){var x=String(s||"").replace(/\D/g,"");if(x.length!==6)return"";var m=+x.slice(0,2);if(m<1||m>12)return"";return x.slice(2)+"-"+x.slice(0,2)}
+function cdat(){var k=pm($("cm").value),r={};if(!k)return r;data.forEach(function(p){if(p.date.slice(0,7)===k&&p.doc!=="Self"&&!p.cancelled)(r[p.doc]=r[p.doc]||[]).push(p)});return r}
+function camt(p){if($("cb").value!=="rec")return p.total;return p.status==="Paid"?p.total:(p.status==="Balance/Due"?p.paid:0)}
+function csum(L){return L.reduce(function(a,p){return a+camt(p)},0)}
+function r2(x){return Math.round(x*100)/100}
+function crender(){
+ var r=cdat(),h="",g=0;
+ docs.forEach(function(d){if(d.code==="Self"||!r[d.code]||($("cd").value&&$("cd").value!==d.code))return;
+  var L=r[d.code],b=csum(L),c=r2(b*(+d.pct||0)/100);g+=c;
+  h+='<tr data-base="'+b+'"><td>'+esc(d.code)+' - '+esc(d.name)+'</td><td class="n">'+L.length+'</td><td class="n">'+b+'</td><td class="n"><input class="pct" data-code="'+esc(d.code)+'" type="number" min="0" max="100" step="0.5" value="'+(d.pct||"")+'" style="width:80px"></td><td class="n cc">'+c+'</td><td><button data-pr="'+esc(d.code)+'">Print</button></td></tr>'});
+ $("clist").innerHTML=h||'<tr><td colspan="6" style="color:var(--muted)">No doctor patients in this month.</td></tr>';
+ $("cgt").textContent=r2(g);
+}
+$("clist").oninput=function(e){var t=e.target;if(!t.classList.contains("pct"))return;
+ var d=docs.filter(function(x){return x.code===t.getAttribute("data-code")})[0];if(!d)return;
+ d.pct=num(t.value);var tr=t.closest("tr");tr.querySelector(".cc").textContent=r2(+tr.getAttribute("data-base")*d.pct/100);
+ var g=0;[].forEach.call($("clist").querySelectorAll(".cc"),function(c){g+=+c.textContent});$("cgt").textContent=r2(g)};
+$("clist").onchange=function(e){if(e.target.classList.contains("pct")){save();cdocs()}};
+$("clist").onclick=function(e){var c=e.target.getAttribute&&e.target.getAttribute("data-pr");if(c)cprint(c)};
+function basis(){return $("cb").value==="rec"?"Received amount only":"Billed amount"}
+function cprintAll(){var r=cdat(),sum="",det="",g=0,cdv=$("cd").value;
+ docs.forEach(function(d){if(!r[d.code]||(cdv&&cdv!==d.code))return;var L=r[d.code],b=csum(L),c=r2(b*(+d.pct||0)/100);g+=c;
+  sum+='<tr><td>'+esc(d.name)+' ('+esc(d.code)+')</td><td>'+L.length+'</td><td style="text-align:right">'+b+'</td><td style="text-align:right">'+(d.pct||0)+'%</td><td style="text-align:right">'+c+'</td></tr>';
+  det+='<h3 style="margin:16px 0 4px;font-size:13px">'+esc(d.name)+' ('+esc(d.code)+') - '+(d.pct||0)+'%</h3><table><thead><tr><th>Date</th><th>Patient Name</th><th>Test</th><th>Total Amt</th><th>Paid Status</th></tr></thead><tbody>'+L.map(function(p){return'<tr><td>'+dmy(p.date)+'</td><td>'+esc(fn(p))+'</td><td>'+esc(p.tests)+'</td><td style="text-align:right">'+p.total+'</td><td>'+esc(p.status==="Balance/Due"?"Due "+(p.total-p.paid):p.status)+'</td></tr>'}).join("")+'<tr><td colspan="3" style="text-align:right"><b>Total (counted: '+b+')</b></td><td style="text-align:right"><b>'+L.reduce(function(a,p){return a+p.total},0)+'</b></td><td><b>Commission: '+c+'</b></td></tr></tbody></table>'});
+ $("printArea").innerHTML='<h2>Doctor Commission Summary</h2><div style="margin-bottom:8px">Month: <b>'+esc($("cm").value)+'</b> | Basis: '+basis()+'</div><table><thead><tr><th>Doctor</th><th>Patients</th><th>Amount</th><th>Commission %</th><th>Commission</th></tr></thead><tbody>'+sum+'<tr><td colspan="4" style="text-align:right"><b>Total payable</b></td><td style="text-align:right"><b>'+r2(g)+'</b></td></tr></tbody></table>'+det;
+ window.print()}
+$("cprintAll").onclick=cprintAll;
+function cprint(code){var L=cdat()[code]||[],d=docs.filter(function(x){return x.code===code})[0]||{name:code},b=csum(L),c=r2(b*(+d.pct||0)/100);
+ var rows=L.map(function(p){return'<tr><td>'+dmy(p.date)+'</td><td>'+esc(fn(p))+'</td><td>'+esc(p.tests)+'</td><td style="text-align:right">'+p.total+'</td><td>'+esc(p.status)+'</td><td style="text-align:right">'+camt(p)+'</td></tr>'}).join("");
+ $("printArea").innerHTML='<h2>Commission Statement</h2><div style="margin-bottom:8px">Doctor: <b>'+esc(d.name)+'</b> | Month: <b>'+esc($("cm").value)+'</b> | Basis: '+basis()+'</div><table><thead><tr><th>Date</th><th>Pt Name</th><th>Test</th><th>Amount</th><th>Status</th><th>Counted</th></tr></thead><tbody>'+rows+'</tbody></table><p><b>Counted total: '+b+' | Commission '+(d.pct||0)+'%: Rs. '+c+'</b></p>';
+ window.print()}
+var TMK="patientBillingTests",TM={tests:[],profiles:[]},sel=[],tlMode="all",tOld=null;
+var SEED=["HAEMOGLOBIN C ESR", "WIDAL", "HB,CBC/ HAEMOGRAM", "PREGNANCY TEST", "PLATELATE COUNT", "R.A.TEST,A.S.O.,C.R.P", "PBS FOR MP", "A.S.O.TEST QUANTITATIVE", "ESR", "C.R.P.TEST QUANTITATIVE", "BT, CT", "V.D.R.L TEST", "RETIC COUNT", "AUSTRALIA ANTIGEN (HBsAg)", "SICKLING TEST", "HIV / RETRO VIRUS -RAPID", "OSMOTIC FRAGILITY TEST", "HIV - ELISA", "LE CELL TEST", "WESTERN BLOT", "PROTHROMBIN TIME", "HCV", "PTTK / APTT", "BLOOD SUGAR-RANDOM", "BLOOD GROUP", "BLOOD SUGAR-F & PP", "COOMBS TEST ( DIRECT)", "BLOOD UREALEVEL/BUN", "COOMBS TEST ( IN DIRECT)", "Sr. CREATINIE", "S.IRON STUDIES", "Sr. BILIRUBIN", "ABSOLUTE EOSINO COUNT.", "S.G.P.T.", "URINE ROUTINE", "S.G.O.T.", "URINE A.C.R.", "ALK PO4", "URINE P.C.R", "Sr. PROTEIN(TP+ALB+GLB)", "URINE CULTURE", "Sr. CHOLESTROL", "24 Hrs URINE PROTEIN", "Sr. TRIGLYCERIDE", "STOOL OCCULT BLOOD", "HDL CHOLESTROL", "STOOL ROUTINE", "LIPID PROFILE", "SPUTUM FOR A.F.B.1 DAY", "Sr. URIC ACID", "SPUTUM FOR A.F.B. 5 DAY", "Sr. ACID PHOSPHATASE", "THROAT SWAB FOR KLB", "Sr. CALCIUM", "GRAM STAIN", "Sr. PHOSPHORUS", "BLOOD CULTURE", "Sr. AMYLASE", "SEMEN ANALYSIS", "Sr. LIPASE", "C.S.F.", "C.P.K. MB", "BODY FLUID", "C.P.K. TOTAL/NAC", "Sr. Na & K Electrolytes", "TUBER CULIN TEST (M.T)", "L.D.H.", "RAPID MAL ARIALANTIEN", "T3,T4, & TSH", "G.6 P.D.", "FREE T3,FREET4,TSH", "WILFILEX TEST", "TSH only", "PUS or FLUID –C/S", "TORCH TEST (G+M)", "SKIN CLIPPING", "LEPTOSPIRA ANTIBOIDES", "GLYCOSYLATE HBA1C", "HISTOPATH ( AS PER BLOCK)", "DENGUE -(NS1,IgG,IgM)", "FNAC / FNAC-GUIDED", "ADA FOR MTB", "PSA", "H.P.LC(1000+200)", "AMMONIA", "HEV", "BRUCELLA", "E2", "LEPTOSPIRA", "TEST0STER", "HAV IgM", "HbA1C", "HbeAg(ENVELOP)", "INSULIN", "CCP", "G.G.T.", "HOMOCYSTINNE", "TROPO-I", "HS C.R.P.", "PRO B.N.P", "D.DIMER", "MAGNESIUM", "BICOROBONATE", "TYPHI IGM", "CHIKUNGUNYA IGM", "HAEMOGLOBIN", "R.A.TEST", "URINE B.S. & B.P./ SUGAR", "URINE MICROALBUMINURIA"];
+try{var tx=JSON.parse(localStorage.getItem(TMK)||"null");if(tx&&tx.tests)TM={tests:tx.tests,profiles:tx.profiles||[]}}catch(e){}
+if(!TM.tests.length)TM.tests=SEED.map(function(n){return{code:n,name:n,cat:"",price:0,fav:false}});
+function ctm(){if(col)col.doc("testmaster").set(TM).catch(function(){note("Cloud save failed")})}
+function tsave(){try{localStorage.setItem(TMK,JSON.stringify(TM))}catch(e){}ctm();trender()}
+function tfind(c){return TM.tests.filter(function(t){return t.code.toLowerCase()===String(c).trim().toLowerCase()})[0]}
+function putTest(c,n,cat,fav){c=String(c).trim();n=String(n||"").trim();if(!c||!n)return false;var t=tfind(c);if(t){t.name=n;if(cat!==undefined)t.cat=String(cat).trim();if(fav!==undefined)t.fav=fav}else TM.tests.push({code:c,name:n,cat:String(cat||"").trim(),price:0,fav:!!fav});return true}
+function opt(v,t){return'<option value="'+esc(v)+'">'+esc(t)+'</option>'}
+function tlabel(t){return t.code===t.name?t.name:t.code+" - "+t.name}
+function tsorted(){return TM.tests.slice().sort(function(a,b){return a.name.toLowerCase()<b.name.toLowerCase()?-1:1})}
+function tfiltered(){var c=$("tcat").value,q=$("tq").value.toLowerCase(),by=$("tby").value;
+ return tsorted().filter(function(t){return(tlMode!=="fav"||t.fav)&&(!c||t.cat===c)&&(!q||String(by==="n"?t.name:t.code).toLowerCase().indexOf(q)>-1)})}
+function tlRender(){$("tl").innerHTML=tfiltered().map(function(t){return opt(t.code,tlabel(t))}).join("")}
+function trender(){
+ var cats={},c=$("tcat").value,p=$("tprof").value,q=$("mq").value.toLowerCase();TM.tests.forEach(function(t){if(t.cat)cats[t.cat]=1});
+ $("tcat").innerHTML='<option value="">Select Test Category</option>'+Object.keys(cats).sort().map(function(x){return opt(x,x)}).join("");
+ $("tprof").innerHTML='<option value="">Select Test Profile</option>'+TM.profiles.map(function(x){return opt(x.name,x.name)}).join("");
+ if(c&&cats[c])$("tcat").value=c;if(p)$("tprof").value=p;
+ tlRender();
+ var ps=$("pSel"),keep=[].map.call(ps.selectedOptions,function(o){return o.value});ps.innerHTML=tsorted().map(function(t){return opt(t.code,t.name)}).join("");[].forEach.call(ps.options,function(o){if(keep.indexOf(o.value)>-1)o.selected=true});
+ $("tmlist").innerHTML=tsorted().filter(function(t){return!q||(t.name+" "+t.code).toLowerCase().indexOf(q)>-1}).map(function(t){return'<tr><td>'+(t.code===t.name?"":esc(t.code))+'</td><td>'+esc(t.name)+'</td><td>'+esc(t.cat)+'</td><td><button class="lk" data-fav="'+esc(t.code)+'">'+(t.fav?"★":"☆")+'</button></td><td style="white-space:nowrap"><button data-tedit="'+esc(t.code)+'">Edit</button> <button class="x" data-tdel="'+esc(t.code)+'" title="Delete">✕</button></td></tr>'}).join("")||'<tr><td colspan="5" style="color:var(--muted)">No tests found.</td></tr>';
+ $("pmlist").innerHTML=TM.profiles.map(function(x){return'<div>'+esc(x.name)+': '+esc(x.codes.join(", "))+' <button class="x" data-pdel="'+esc(x.name)+'" title="Delete">✕</button></div>'}).join("")||'<span style="color:var(--muted)">No profiles yet.</span>';
+}
+function selTotal(){$("tests").value=sel.map(function(i){return i.c}).join(", ")}
+function selRender(){$("stab").innerHTML=sel.map(function(i,k){return'<tr><td style="width:24px"><input type="checkbox" data-k="'+k+'"'+(i.pk?" checked":"")+'></td><td>'+esc(i.n===i.c?i.n:i.c+" - "+i.n)+'</td></tr>'}).join("")||'<tr><td style="color:var(--muted)">No tests selected</td></tr>';selTotal()}
+function addTest(c){var t=tfind(c);if(!t||sel.some(function(i){return i.c===t.code}))return;sel.push({c:t.code,n:t.name})}
+$("stab").onchange=function(e){var k=e.target.getAttribute("data-k");if(k!==null)sel[k].pk=e.target.checked};
+["tq","tcat","tby"].forEach(function(i){$(i).oninput=tlRender});$("tcat").onchange=tlRender;$("mq").oninput=trender;
+$("tadd").onclick=function(){[].forEach.call($("tl").selectedOptions,function(o){addTest(o.value)});selRender()};
+$("tl").ondblclick=function(){if($("tl").value){addTest($("tl").value);selRender()}};
+$("taddAll").onclick=function(){tfiltered().forEach(function(t){addTest(t.code)});selRender()};
+$("trem").onclick=function(){sel=sel.filter(function(i){return!i.pk});selRender()};
+$("tremAll").onclick=function(){sel=[];selRender()};
+$("tprof").onchange=function(){var p=TM.profiles.filter(function(x){return x.name===$("tprof").value})[0];if(p){p.codes.forEach(addTest);selRender()}$("tprof").value=""};
+document.querySelector("#tsel .lk").parentNode.onclick=function(e){var m=e.target.getAttribute("data-m");if(!m)return;tlMode=m;[].forEach.call(this.querySelectorAll(".lk"),function(b){b.classList.toggle("on",b.getAttribute("data-m")===m)});tlRender()};
+$("tAdd").onclick=function(){var sh=$("mCode").value.trim(),nm=$("mName").value.trim();if(!nm){$("tMsg").textContent="Enter the test name.";return}
+ var code=sh||nm;if(tOld&&tOld!==code){TM.tests=TM.tests.filter(function(x){return x.code!==tOld});TM.profiles.forEach(function(p){p.codes=p.codes.map(function(c){return c===tOld?code:c})})}
+ tOld=null;putTest(code,nm,$("mCat").value,$("mFav").value==="1");$("tMsg").textContent="Saved.";["mCode","mName","mCat"].forEach(function(i){$(i).value=""});$("mFav").value="";tsave()};
+$("tBulk").onclick=function(){var n=0;$("mBulk").value.split("\n").forEach(function(l){l=l.trim();if(l&&putTest(l,l))n++});$("mBulk").value="";$("tMsg").textContent=n+" test(s) added or updated.";tsave()};
+$("pAdd").onclick=function(){var nm=$("pName").value.trim(),cs=[].map.call($("pSel").selectedOptions,function(o){return o.value});
+ if(!nm||!cs.length){$("pMsg").textContent="Enter a profile name and select at least one test.";return}
+ var o=TM.profiles.filter(function(x){return x.name===nm})[0];if(o)o.codes=cs;else TM.profiles.push({name:nm,codes:cs});
+ $("pMsg").textContent="Saved.";$("pName").value="";[].forEach.call($("pSel").options,function(x){x.selected=false});tsave()};
+$("tmlist").onclick=function(e){var t=e.target,f=t.getAttribute("data-fav"),ed=t.getAttribute("data-tedit"),dl=t.getAttribute("data-tdel");
+ if(f){var x=tfind(f);if(x){x.fav=!x.fav;tsave()}}
+ else if(ed){var y=tfind(ed);if(y){tOld=y.code;$("mCode").value=y.code===y.name?"":y.code;$("mName").value=y.name;$("mCat").value=y.cat;$("mFav").value=y.fav?"1":"";$("tMsg").textContent="Change the details and click Add / update test."}}
+ else if(dl)ask("Delete this test from the master list?","Yes, delete",function(){TM.tests=TM.tests.filter(function(z){return z.code!==dl});tsave()})};
+$("pmlist").onclick=function(e){var d=e.target.getAttribute("data-pdel");if(d)ask("Delete this profile?","Yes, delete",function(){TM.profiles=TM.profiles.filter(function(x){return x.name!==d});tsave()})};
+trender();selRender();
+$("bkDl").onclick=function(){try{var b=new Blob([JSON.stringify({v:1,patients:data,doctors:docs,tests:TM})],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="patient-billing-backup-"+today()+".json";document.body.appendChild(a);a.click();a.remove();$("bkMsg").textContent="Backup file downloaded ("+data.length+" patients)."}catch(e){$("bkMsg").textContent="This page cannot download files."}};
+$("bkFile").onchange=function(){var f=this.files[0];if(!f)return;var inp=this,r=new FileReader();r.onload=function(){try{var j=JSON.parse(r.result),n=0,have={};data.forEach(function(p){have[String(p.id)]=1});
+ (j.patients||[]).forEach(function(p){if(!have[String(p.id)]){data.push(p);have[String(p.id)]=1;n++;cput(p)}});
+ (j.doctors||[]).forEach(function(d){var m=docs.filter(function(x){return x.code===d.code})[0];if(m){if(d.pct!=null&&m.pct==null)m.pct=d.pct}else docs.push(d)});
+ if(j.tests&&j.tests.tests){j.tests.tests.forEach(function(t){if(!tfind(t.code))TM.tests.push(t)});(j.tests.profiles||[]).forEach(function(p){if(!TM.profiles.some(function(x){return x.name===p.name}))TM.profiles.push(p)})}
+ normalize();save();cdocs();tsave();render();$("bkMsg").textContent=n+" patient(s) restored."}catch(e){$("bkMsg").textContent="That file could not be read."}inp.value=""};r.readAsText(f)};
+var col=null;
+function note(t){$("cloud").textContent=t}
+function cid(id){return"p"+String(id).replace(/\W/g,"")}
+function cput(p){if(col)col.doc(cid(p.id)).set(p).then(function(){note("Saved to your account")},function(){note("NOT saved to your account - only in this browser")})}
+function cdel(id){if(col)col.doc(cid(id)).delete().catch(function(){note("Cloud delete failed")})}
+function cdocs(){if(col)col.doc("doctors").set({list:docs}).catch(function(){note("Cloud save failed")})}
+calc();updLab();render();
+(async function(){
+ try{
+  var u=await claude.use("user"),db=await claude.use("db");
+  if(!u||!db){note("Saved in this browser only");return}
+  col=db.collection("data/users/"+await u.id());
+  var snap=await col.get(),cd=[],cl=[],tmc=null;
+  snap.docs.forEach(function(x){var v=x.data();if(x.id==="doctors")cl=v.list||[];else if(x.id==="testmaster")tmc=v;else cd.push(v)});
+  var have={};cd.forEach(function(p){have[String(p.id)]=1});
+  var loc=data.filter(function(p){return!have[String(p.id)]});loc.forEach(cput);data=cd.concat(loc);
+  cl.forEach(function(d){var m=docs.filter(function(x){return x.code===d.code})[0];if(m){m.name=d.name;if(d.pct!=null)m.pct=d.pct}else docs.push(d)});cdocs();
+  if(tmc&&tmc.tests&&tmc.tests.length){TM={tests:tmc.tests,profiles:tmc.profiles||[]};try{localStorage.setItem(TMK,JSON.stringify(TM))}catch(e){}}else ctm();
+  normalize();save();render();trender();note("Saved to your account")
+ }catch(e){note("Saved in this browser only")}
+})();
+</script>
+</body>
+</html>
